@@ -1,10 +1,12 @@
 using Pkg
-# Pkg.add("FIB")
+# Pkg.add("BasicPOMCP")
 
 using POMDPs, POMDPModelTools
 using POMDPSimulators
 using POMDPPolicies
 using FIB # For the solver
+using ParticleFilters
+using BasicPOMCP
 
 struct TigerPOMDP <: POMDP{Bool, Symbol, Bool}
     r_listen::Float64 # reward for listening (default -1)
@@ -120,10 +122,22 @@ fib_reward = simulate(rollout_sim, m, fib_policy);
 rand_reward = simulate(rollout_sim, m, rand_policy);
 
 
-print(fib_reward)
-println()
-print(rand_reward)
+@show fib_reward
+@show rand_reward
      
+solver = POMCPSolver(c=10.0)
+planner = solve(solver, m);
+pf = SIRParticleFilter(m, 1000);
+r_pomcp = simulate(rollout_sim, m, planner, pf);
+r_rand = simulate(rollout_sim, m, rand_policy);
+
+
+
+@show r_pomcp;
+@show r_rand;
+     
+
+
 
 
 
